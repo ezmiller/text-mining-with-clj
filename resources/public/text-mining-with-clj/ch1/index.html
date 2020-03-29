@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html><html><head><script language="JavaScript">
+  socket= new WebSocket('ws://localhost:5678/watch-reload');
+  socket.onopen= function() {
+                           socket.send ('watch') ;
+                           };
+  socket.onmessage= function(s) {
+                               if                                                          ( s.data == 'started') {
+                                                                                                                   console.log ("Watching started") ;
+                                                                                                                   }                                 else                   if ( s.data == 'reload') {
+                                                                                                                                                                                                      console.log            ("reloading") ;
+                                                                                                                                                                                                      window.location.reload ()            ;
+                                                                                                                                                                                                      } else                   {
+                                                                                                                                                                                                                                alert('Don\'t know what to do with [' + s.data + ']');
+                                                                                                                                                                                                                                }
+                               };
+  </script>
+  <style type="text/css">body {
+    background-image: linear-gradient(0deg, #fff4e8 25%, #fef8e9 25%, #fef8e9 50%, #fff4e8 50%, #fff4e8 75%, #fef8e9 75%, #fef8e9 100%);
+    background-size: 32.00px 32.00px;
+    color: #3e3c3f;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0;
+}
+
+.nspin {
+    border-radius: 10px;
+    background: #d7d2c3;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.nspout {
+    border-radius: 10px;
+    background: #e4ded0;
+    padding: 10px;
+    margin-left: 10px;
+}
+
+.nspbox {
+    padding-bottom: 5px;
+    margin: 0;
+}
+
+.FAILED { color: #bb0000; }
+.PASSED { color: #009500; }
+
+p {
+    margin-top: 0;
+    margin-bottom: 5px; }
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #720000;
+}
+
+a:visited { color: #5E5E59; }
+a:link { color: #720000; }
+tr:nth-child(even) { background-color: #e4ded0; }
+th { background-color: #d7d2c3; }
+
+</style><script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/lang-clj.js" type="text/javascript"></script><link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css"><script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script><script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" type="text/javascript"></script><link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet" type="text/css"></head><body><div><h1>text-mining-with-clj.ch1</h1><div><i><small>text-mining-with-clj.ch1 - created by <a href="https://github.com/scicloj/notespace">notespace</a>, Wed Mar 25 10:44:03 EDT 2020.</small></i><hr></div><div class="nspbox"><div><h2>Setup</h2></div></div><div class="nspbox"><div class="nspin"><code class="prettyprint lang-clj">(rserve/set-as-default!)</br>&nbsp;(r/discard-all-sessions)</code></div><div class="nspout"><code class="prettyprint lang-clj">{}</code></div></div><div class="nspbox"><div class="nspin"><code class="prettyprint lang-clj">(require-r&nbsp;'[dplyr&nbsp;:as&nbsp;d]</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'[tidytext&nbsp;:as&nbsp;t]</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'[janeaustenr&nbsp;:as&nbsp;j]</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'[stringr&nbsp;:as&nbsp;stringr])</code></div><div class="nspout"><code class="prettyprint lang-clj">nil</code></div></div><div class="nspbox"><div><h2>The unnest_tokens function</h2></div></div><div class="nspbox"><div class="nspin"><code class="prettyprint lang-clj">(def&nbsp;text</br>&nbsp;&nbsp;&nbsp;["Because&nbsp;I&nbsp;could&nbsp;not&nbsp;stop&nbsp;for&nbsp;Death&nbsp;-"</br>&nbsp;&nbsp;&nbsp;&nbsp;"He&nbsp;kindly&nbsp;stopped&nbsp;for&nbsp;me&nbsp;-"</br>&nbsp;&nbsp;&nbsp;&nbsp;"The&nbsp;Carriage&nbsp;held&nbsp;but&nbsp;just&nbsp;Ourselves&nbsp;-"</br>&nbsp;&nbsp;&nbsp;&nbsp;"and&nbsp;Immortality"])</code></div><div class="nspout"><code class="prettyprint lang-clj">#'text-mining-with-clj.ch1/text</code></div></div><div class="nspbox"><div class="nspin"><code class="prettyprint lang-clj">(let&nbsp;[d&nbsp;(r.dplyr/tibble&nbsp;:lines</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(range&nbsp;1&nbsp;5)</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:text&nbsp;text)]</br>&nbsp;&nbsp;&nbsp;(t/unnest_tokens&nbsp;d&nbsp;'word&nbsp;'text))</code></div><div class="nspout"><code class="prettyprint lang-clj">09:01:38.748&nbsp;[nREPL-session-47e8bc6b-4c7d-44f0-af60-1c8b471af35f]&nbsp;DEBUG&nbsp;clojisr.v1.impl.rserve.session&nbsp;-&nbsp;[:clojisr.v1.impl.rserve.session/eval-r->java&nbsp;{:code&nbsp;"capture.output(print(.MEM$x63698822cc2c494d))",&nbsp;:session-args&nbsp;{:session-type&nbsp;:rserve}}]&nbsp;{&nbsp;&nbsp;}</br>#&nbsp;A&nbsp;tibble:&nbsp;20&nbsp;x&nbsp;2</br>&nbsp;&nbsp;&nbsp;lines&nbsp;word&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;<dbl>&nbsp;<chr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;because&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;i&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;could&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;not&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;stop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;for&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;death&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;he&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;kindly&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;stopped&nbsp;&nbsp;&nbsp;&nbsp;</br>11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;for&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;me&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;the&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;carriage&nbsp;&nbsp;&nbsp;</br>15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;held&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;but&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;just&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;ourselves&nbsp;&nbsp;</br>19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;and&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</br>20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;immortality</code></div></div><div class="nspbox"></div><div class="nspbox"><div class="nspin"><code class="prettyprint lang-clj">(let&nbsp;[regex&nbsp;(r&nbsp;"regex")</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cumsum&nbsp;(r&nbsp;"cumsum")]</br>&nbsp;&nbsp;&nbsp;(-></br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(j/austen_books)</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(d/group_by&nbsp;'book)</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(d/mutate</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:linenumber&nbsp;(d/row_number)</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:chapter</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(->&nbsp;'text</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(stringr/str_detect</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(regex</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"^chapter&nbsp;[\\divxlc]"))</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cumsum))))</code></div></div><hr><div><i><small>text-mining-with-clj.ch1 - created by <a href="https://github.com/scicloj/notespace">notespace</a>, Wed Mar 25 10:44:03 EDT 2020.</small></i><hr></div></div></body></html></html>
