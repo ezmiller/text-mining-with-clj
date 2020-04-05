@@ -2,8 +2,8 @@
   (:require [clojisr.v1.r :as r :refer [r r+ ->code]]
             [clojisr.v1.rserve :as rserve]
             [clojisr.v1.require :refer [require-r]]
-            [clojisr.v1.applications.plotting :refer [plot->svg]]
-            [notespace.v2.note :refer [note note-md]])
+            [clojisr.v1.applications.plotting :refer [plot->svg plot->file]]
+            [notespace.v2.note :refer [note note-md note-hiccup note-as-hiccup]])
   (:require [notespace.v2.live-reload]))
 
 
@@ -19,6 +19,16 @@
             '[tidytext :as t]
             '[janeaustenr :as j]
             '[stringr :as stringr]))
+
+(comment
+  (notespace.v2.note/ns->out-dir *ns*))
+
+(note
+ ;;(-> (java.io.File. "/resources/") .getAbsolutePath)
+ ;; (def target-path
+ ;;   (-> (java.io.File. "/resources/") .getAbsolutePath))
+ "resources"
+ )
 
 (note
  (defn long-str [& strings]
@@ -38,8 +48,7 @@
    (t/unnest_tokens d 'word 'text)))
 
 (note-md
- (long-str "## Tidying the Works of Jane Austen"
-           "First let's add a column indicating the chapter of each line in the text."))
+ (long-str "## Tidying the Works of Jane Austen"           "First let's add a column indicating the chapter of each line in the text."))
 
 (note
  (let [cumsum (r "cumsum")]
@@ -73,15 +82,119 @@
 (note
  (require-r '[ggplot2 :as gg]))
 
-(note
+(note-as-hiccup
  (let [reorder (r "reorder")]
-   (-> tidy-books
-       (d/count 'word :sort true)
-       (d/filter '(> n 600))
-       (d/mutate :word '(reorder word n))
-       (gg/ggplot (gg/aes :x 'word :y 'n))
-       (r+ (gg/geom_col) (gg/xlab nil))
-       plot->svg
-       )))
+   (plot->svg
+    (-> tidy-books
+        (d/count 'word :sort true)
+        (d/filter '(> n 600))
+        (d/mutate :word '(reorder word, n))
+        (gg/ggplot (gg/aes 'word, 'n))
+        (r+ (gg/geom_col)
 
-;; (notespace.v2.note/reset-state!)
+            (gg/xlab nil)
+            (gg/coord_flip))))))
+
+(note-md
+ (long-str "##The gutenbergr Package"
+           "We'll retreieve a bunch of H.G. Wells' books."))
+
+(note
+ (require-r '[gutenbergr :as gbr]))
+
+(note
+ (def hgwells (gbr/gutenberg_download [35 36 5230 159])))
+
+(note-md (str "Let's see what the most common words in his books are."))
+
+(note
+ (def tidy-hgwells (-> hgwells
+                       (t/unnest_tokens 'word 'text)
+                       (d/anti_join 'stop_words))))
+
+(note
+ (-> tidy-hgwells
+     (d/count 'word :sort true)))
+
+
+(note
+ (def bronte (gbr/gutenberg_download [1260 768 969 9182 767])))
+
+(note
+ (def tidy-bronte (-> bronte
+                      (t/unnest_tokens 'word 'text)
+                      (d/anti_join 'stop_words))))
+
+(note
+ (-> tidy-bronte
+     (d/count 'word :sort true)))
+
+
+(note-md
+ (long-str "We'll now calculate the frequency for each word in the works of Jane Austen"
+           ", the Brönte sisters, and H.G. Wells by binding the data frames together."))
+
+(note
+ (require-r '[tidyr :as tdr]
+            '[scales :as scales]))
+
+(note
+ (let [sum (r "sum")]
+   (def frequency
+     (-> (d/bind_rows
+          (d/mutate tidy-bronte :author "Brönte Sisters")
+          (d/mutate tidy-hgwells :author "H.G. Wells")
+          (d/mutate tidy-books :author "Jane Austen"))
+         (d/mutate :word '(stringr/str_extract word "[a-z']+")) ;; clean words
+         (d/count 'author 'word)
+         (d/group_by 'author)
+         (d/mutate :proportion '(/ n (sum n)))
+         (d/select '-n) ;; drop the n column
+         (tdr/spread 'author 'proportion)
+         (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])
+         (d/rename :jane.austen "Jane Austen") ;; this shouldn't be necessary
+         ))))
+
+(note frequency)
+
+(note
+ (let [abs (r "abs")]
+   (plot->file
+    (str "frequencies.svg")
+    (-> frequency
+        ;; (d/sample_n 500)
+        (gg/ggplot (gg/aes :x 'proportion :y 'jane.austen
+                           :color '(abs (- jane.austen proportion))))
+        (r+ (gg/geom_abline :color "gray40" :lty 2)
+            (gg/geom_jitter :alpha 0.1 :size 2.5 :width 0.3 :height 0.3)
+            (gg/geom_text (gg/aes :label 'word) :check_overlap true :vjust 1.5)
+            (gg/scale_x_log10 :labels '(scales/percent_format))
+            (gg/scale_y_log10 :labels '(scales/percent_format))
+            (gg/scale_color_gradient :limits [0 0.001]
+                                     :low "darkslategray4" :high "gray75")
+            (gg/facet_wrap ''author :ncol 2)
+            (gg/theme :legend.position "none")
+            (gg/labs :y "Jane Austen" :x nil)
+        )
+    ))))
+
+;; (def testdf
+;;   (d/tibble
+;;     :x (->> rand (repeatedly 100))
+;;     :y (->> rand (repeatedly 100))))
+
+;; (plot->file
+;;  (str "rand.png")
+;;  (-> testdf
+;;      (gg/ggplot (gg/aes :x 'x :y "y"))
+;;      (r+ (gg/geom_abline :color "gray10" :lty 2)
+;;          (gg/geom_jitter :alpha 0.1 :size 2.5 :width 0.3 :height 0.3)
+;;          ;; (gg/geom_text (gg/aes :label 'x) :check_overlap true :vjust 1.5)
+;;          ;; (gg/scale_x_log10 :labels '(scales/percent_format))
+;;          (gg/scale_y_log10 :labels '(scales/percent_format))
+;;          ;; (gg/scale_color_gradient :limits [0 0.001]
+;;          ;;                          :low "darkslategray4" :high "gray75")
+;;          ;; (gg/facet_wrap ''author :ncol 2)
+;;          ;; (gg/labs :y "Jane Austen" :x nil)
+;;          )
+;;      ))
