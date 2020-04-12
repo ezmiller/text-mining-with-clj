@@ -174,9 +174,7 @@
                                      :low "darkslategray4" :high "gray75")
             (gg/facet_wrap ''author :ncol 2)
             (gg/theme :legend.position "none")
-            (gg/labs :y "Jane Austen" :x nil)
-        )
-    ))))
+            (gg/labs :y "Jane Austen" :x nil))))))
 
 ;; (def testdf
 ;;   (d/tibble
