@@ -176,23 +176,16 @@
             (gg/theme :legend.position "none")
             (gg/labs :y "Jane Austen" :x nil))))))
 
-;; (def testdf
-;;   (d/tibble
-;;     :x (->> rand (repeatedly 100))
-;;     :y (->> rand (repeatedly 100))))
+(def backtick (r '(<- backtick
+                      (function [x :dequote false]
+                                (= x (deparse (substitute x)))
+                                (if dequote
+                                  (do
+                                    (= x (sub "^(\\\"|')" "" x))
+                                    (= x (sub "(\\\"|')$" "" x))))
+                                (sprintf "`%s`" x)))))
 
-;; (plot->file
-;;  (str "rand.png")
-;;  (-> testdf
-;;      (gg/ggplot (gg/aes :x 'x :y "y"))
-;;      (r+ (gg/geom_abline :color "gray10" :lty 2)
-;;          (gg/geom_jitter :alpha 0.1 :size 2.5 :width 0.3 :height 0.3)
-;;          ;; (gg/geom_text (gg/aes :label 'x) :check_overlap true :vjust 1.5)
-;;          ;; (gg/scale_x_log10 :labels '(scales/percent_format))
-;;          (gg/scale_y_log10 :labels '(scales/percent_format))
-;;          ;; (gg/scale_color_gradient :limits [0 0.001]
-;;          ;;                          :low "darkslategray4" :high "gray75")
-;;          ;; (gg/facet_wrap ''author :ncol 2)
-;;          ;; (gg/labs :y "Jane Austen" :x nil)
-;;          )
-;;      ))
+(backtick "\\\"a b\\\"")
+;; => [1] "`\"\\\"a b\\\"\"`"
+(backtick "\\\"a b\\\"" :dequote true)
+;; => [1] "`\\\"a b\\\"`"
