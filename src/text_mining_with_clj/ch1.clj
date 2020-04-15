@@ -153,9 +153,7 @@
          (d/mutate :proportion '(/ n (sum n)))
          (d/select '-n) ;; drop the n column
          (tdr/spread 'author 'proportion)
-         (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])
-         ;; (d/rename :jane.austen "Jane Austen") ;; this shouldn't be necessary
-         ))))
+         (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])))))
 
 (note frequency)
 
