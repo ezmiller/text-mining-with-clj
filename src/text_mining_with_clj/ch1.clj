@@ -24,7 +24,7 @@
   (notespace.v2.note/ns->out-dir *ns*))
 
 (note
- (def target-path (notespace.v2.note/ns->out-dir *ns*))
+ (def static-resource-target-path "resources/static/")
  )
 
 (note
@@ -153,12 +153,12 @@
          (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])))
    frequency))
 
-(note (str target-path "frequencies.png"))
+(note (str static-resource-target-path "frequencies.png"))
 
 (note
  (let [abs (r "abs")]
    (plot->file
-    (str target-path "frequencies.png")
+    (str static-resource-target-path "frequencies.png")
     (-> frequency
         (gg/ggplot (gg/aes :x 'proportion :y (backtick "Jane Austen")
                            :color '(abs (- ~(backtick "Jane Austen") proportion))))
