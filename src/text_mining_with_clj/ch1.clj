@@ -31,6 +31,8 @@
  )
 
 (note
+ (defn backtick [string]
+   (symbol (format "`%s`" string)))
  (defn long-str [& strings]
    (clojure.string/join "\n" strings)))
 
@@ -152,7 +154,7 @@
          (d/select '-n) ;; drop the n column
          (tdr/spread 'author 'proportion)
          (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])
-         (d/rename :jane.austen "Jane Austen") ;; this shouldn't be necessary
+         ;; (d/rename :jane.austen "Jane Austen") ;; this shouldn't be necessary
          ))))
 
 (note frequency)
@@ -160,32 +162,16 @@
 (note
  (let [abs (r "abs")]
    (plot->file
-    (str "frequencies.svg")
+    (str "frequencies.png")
     (-> frequency
-        ;; (d/sample_n 500)
-        (gg/ggplot (gg/aes :x 'proportion :y 'jane.austen
-                           :color '(abs (- jane.austen proportion))))
+        (gg/ggplot (gg/aes :x 'proportion :y (backtick "Jane Austen")
+                           :color '(abs (- ~(backtick "Jane Austen") proportion))))
         (r+ (gg/geom_abline :color "gray40" :lty 2)
             (gg/geom_jitter :alpha 0.1 :size 2.5 :width 0.3 :height 0.3)
             (gg/geom_text (gg/aes :label 'word) :check_overlap true :vjust 1.5)
             (gg/scale_x_log10 :labels '(scales/percent_format))
             (gg/scale_y_log10 :labels '(scales/percent_format))
-            (gg/scale_color_gradient :limits [0 0.001]
-                                     :low "darkslategray4" :high "gray75")
+            (gg/scale_color_gradient :limits [0 0.001] :low "darkslategray4" :high "gray75")
             (gg/facet_wrap ''author :ncol 2)
             (gg/theme :legend.position "none")
             (gg/labs :y "Jane Austen" :x nil))))))
-
-(def backtick (r '(<- backtick
-                      (function [x :dequote false]
-                                (= x (deparse (substitute x)))
-                                (if dequote
-                                  (do
-                                    (= x (sub "^(\\\"|')" "" x))
-                                    (= x (sub "(\\\"|')$" "" x))))
-                                (sprintf "`%s`" x)))))
-
-(backtick "\\\"a b\\\"")
-;; => [1] "`\"\\\"a b\\\"\"`"
-(backtick "\\\"a b\\\"" :dequote true)
-;; => [1] "`\\\"a b\\\"`"
