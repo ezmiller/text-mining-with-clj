@@ -24,10 +24,7 @@
   (notespace.v2.note/ns->out-dir *ns*))
 
 (note
- ;;(-> (java.io.File. "/resources/") .getAbsolutePath)
- ;; (def target-path
- ;;   (-> (java.io.File. "/resources/") .getAbsolutePath))
- "resources"
+ (def target-path (notespace.v2.note/ns->out-dir *ns*))
  )
 
 (note
@@ -156,10 +153,12 @@
          (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])))
    frequency))
 
+(note (str target-path "frequencies.png"))
+
 (note
  (let [abs (r "abs")]
    (plot->file
-    (str "frequencies.png")
+    (str target-path "frequencies.png")
     (-> frequency
         (gg/ggplot (gg/aes :x 'proportion :y (backtick "Jane Austen")
                            :color '(abs (- ~(backtick "Jane Austen") proportion))))
@@ -172,3 +171,7 @@
             (gg/facet_wrap ''author :ncol 2)
             (gg/theme :legend.position "none")
             (gg/labs :y "Jane Austen" :x nil))))))
+
+(note-as-hiccup
+ [:img {:src "static/frequencies.png"}])
+
