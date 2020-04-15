@@ -172,6 +172,6 @@
             (gg/theme :legend.position "none")
             (gg/labs :y "Jane Austen" :x nil))))))
 
-(note-as-hiccup
+(note-hiccup
  [:img {:src "static/frequencies.png"}])
 
