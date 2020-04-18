@@ -50,17 +50,21 @@
  (long-str "Now we have a text to analyze. Let's parse it with `unnest_tokens`."
            "First we create a tibble, note that instead of specifying arguments"
            "in the R way `text=text`, we can use Clojure symbols, e.g. `:text text`."
-           "What is particularly exciting here is that `text` is a Clojure data structure."))
-
-(note-md
- (long-str "Another thing to take note of is how we call `t/unnest_tokens`. In R, the"
+           "What is particularly exciting here is that `text` is a Clojure data structure."
+           ""
+           "Another thing to take note of is how we call `t/unnest_tokens`. In R, the"
            "function `unest_tokens` takes a dataframe or table as the first argument, "
            "and then an argument specifying output and input. The output and input arguments"
            "are \"passed by expression and support quasiquotation\", that means you can specify"
-           "a column using a symbol. In R, you would just write the word plainly and that's a"
+           "a column using a symbol.\""
+           ""
+           "In R, you would just write the word plainly and that's a"
            "symbol, i.e. `unnest_tokens(word, text)`. Because we are in Clojure and we do not"
            "want Clojure to evaluate `word` and `text` as symbols, we need to quote the expression"
-           "with `'`. Another option would be to call `(r/rsymbol \"word\")`."))
+           "with `'`. Another option would be to call `(r/rsymbol \"word\")`."
+           ""
+           "Lastly, note our use of a pipe macro `->`. This is like using R's pipe notation `%>%`."
+           ))
 
 (note
  (let [data (d/tibble :lines (range 1 5) :text text)]
@@ -68,12 +72,15 @@
 
 
 (note-md
- (long-str "## Tidying the Works of Jane Austen"           "First let's add a column indicating the chapter of each line in the text."))
+ (long-str "## 1.3: Tidying the Works of Jane Austen" ))
 
-(note-md )
+(note-md
+ (long-str "First let's add a column indicating the chapter of each line in the text."
+           "Note how we use `let` to capture a reference to the R function `cumsum`. Once"
+           "we do that we can use the R function in Clojure, as if it were a Clojure function."))
 
 (note
- (let [cumsum (r "cumsum")]
+ (let [cumsum (r 'cumsum)]
    (def original-books
      (-> (j/austen_books)
          (d/group_by 'book)
@@ -93,19 +100,23 @@
                      (d/anti_join 'stop_words))))
 
 (note-md
- (str "Now we can count wrod occurences."))
+ (str "Now we can count word occurences."))
 
 (note
  (-> tidy-books (d/count 'word :sort true)))
 
 (note-md
- (str "And plot!"))
+ (str "And then plot using R's `ggplot2` library!"))
 
 (note
  (require-r '[ggplot2 :as gg]))
 
+(note-md
+ (str "Note that here we are using a helper function provided by clojisr `r/r+`."
+      "In R, using in-fix notation, you would write: `ggplot(aes(word, n)) + geom_col() + ...`"))
+
 (note-as-hiccup
- (let [reorder (r "reorder")]
+ (let [reorder (r 'reorder)]
    (plot->svg
     (-> tidy-books
         (d/count 'word :sort true)
@@ -118,8 +129,8 @@
             (gg/coord_flip))))))
 
 (note-md
- (long-str "##The gutenbergr Package"
-           "We'll retreieve a bunch of H.G. Wells' books."))
+ (long-str "## 1.4-5: Gutenbergr Package & Word Frequencies"
+           "First we pull books by H.G. Wells from the Gutenberg R package."))
 
 (note
  (require-r '[gutenbergr :as gbr]))
@@ -138,6 +149,7 @@
  (-> tidy-hgwells
      (d/count 'word :sort true)))
 
+(note-md (str "And the same for books by the Bronte sisters."))
 
 (note
  (def bronte (gbr/gutenberg_download [1260 768 969 9182 767])))
@@ -176,7 +188,9 @@
          (tdr/gather 'author 'proportion ["H.G. Wells" "Brönte Sisters"])))
    frequency))
 
-(note (str static-resource-target-path "frequencies.png"))
+(note-md
+ (long-str "And now we can plot comparison frequencies between the corpuses of each author"
+           "as compared to Jane Austen."))
 
 (note
  (let [abs (r "abs")]
@@ -194,9 +208,11 @@
             (gg/facet_wrap ''author :ncol 2)
             (gg/theme :legend.position "none")
             (gg/labs :y "Jane Austen" :x nil)))
-    :width 700
+    :width 800
     :height 700)))
 
 (note-hiccup
  [:img {:src "static/frequencies.png"}])
+
+
 
