@@ -197,8 +197,8 @@
    (plot->file
     (str static-resource-target-path "frequencies.png")
     (-> frequency
-        (gg/ggplot (gg/aes :x 'proportion :y (backtick "Jane Austen")
-                           :color '(abs (- ~(backtick "Jane Austen") proportion))))
+        (gg/ggplot (gg/aes :x 'proportion :y (symbol "`Jane Austen`")
+                           :color '(abs (- ~(symbol "`Jane Austen`") proportion))))
         (r+ (gg/geom_abline :color "gray40" :lty 2)
             (gg/geom_jitter :alpha 0.1 :size 2.5 :width 0.3 :height 0.3)
             (gg/geom_text (gg/aes :label 'word) :check_overlap true :vjust 1.5)
