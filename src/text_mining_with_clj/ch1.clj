@@ -4,7 +4,7 @@
             [clojisr.v1.require :refer [require-r]]
             [clojisr.v1.applications.plotting :refer [plot->svg plot->file]]
             [notespace.v2.note :refer [note note-md note-hiccup note-as-hiccup]]
-            [text-mining-with-clj.common :reer [long-str]])
+            [text-mining-with-clj.common :refer [long-str]])
   (:require [notespace.v2.live-reload]))
 
 (note-md
