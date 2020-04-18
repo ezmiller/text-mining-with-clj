@@ -3,12 +3,26 @@
             [clojisr.v1.rserve :as rserve]
             [clojisr.v1.require :refer [require-r]]
             [clojisr.v1.applications.plotting :refer [plot->svg plot->file]]
-            [notespace.v2.note :refer [note note-md note-hiccup note-as-hiccup]])
+            [notespace.v2.note :refer [note note-md note-hiccup note-as-hiccup]]
+            [text-mining-with-clj.common :reer [long-str]])
   (:require [notespace.v2.live-reload]))
+
+(note-md
+ (long-str "#Chapter 1: \"The tidy text format\", **Text Mining with R**"
+           "#### (Exercises translated into Clojure R-interop from the original: [https://www.tidytextmining.com/tidytext.html](https://www.tidytextmining.com/tidytext.html))"))
 
 
 (note-md
- (str "## Setup"))
+ (long-str "In what follows, you will find a translation of exaples found in the above chapter from"
+           "the book **Text Mining with R: A Tidy Approach** by Julia Silge and David Robinson."
+           "The goal of this document is to illustrate how do what they have demonstrated using"
+           "R-interop in Clojure. For a full examination of the ideas, please see their original text."
+           "To the degree that there is commentary in this text, it will largely relate to the"
+           "nature of the Clojure interop with R."
+           ))
+
+(note-md
+ (str "## Some Setup"))
 
 (note
  (rserve/set-as-default!)
@@ -20,21 +34,11 @@
             '[janeaustenr :as j]
             '[stringr :as stringr]))
 
-(comment
-  (notespace.v2.note/ns->out-dir *ns*))
-
 (note
- (def static-resource-target-path "resources/static/")
- )
-
-(note
- (defn backtick [string]
-   (symbol (format "`%s`" string)))
- (defn long-str [& strings]
-   (clojure.string/join "\n" strings)))
+ (def static-resource-target-path "resources/static/"))
 
 (note-md
- (str "## The unnest_tokens function"))
+ (str "## 1.2: The `unnest_tokens` function"))
 
 (note
  (def text ["Because I could not stop for Death -"
@@ -42,12 +46,31 @@
             "The Carriage held but just Ourselves -"
             "and Immortality"]))
 
+(note-md
+ (long-str "Now we have a text to analyze. Let's parse it with `unnest_tokens`."
+           "First we create a tibble, note that instead of specifying arguments"
+           "in the R way `text=text`, we can use Clojure symbols, e.g. `:text text`."
+           "What is particularly exciting here is that `text` is a Clojure data structure."))
+
+(note-md
+ (long-str "Another thing to take note of is how we call `t/unnest_tokens`. In R, the"
+           "function `unest_tokens` takes a dataframe or table as the first argument, "
+           "and then an argument specifying output and input. The output and input arguments"
+           "are \"passed by expression and support quasiquotation\", that means you can specify"
+           "a column using a symbol. In R, you would just write the word plainly and that's a"
+           "symbol, i.e. `unnest_tokens(word, text)`. Because we are in Clojure and we do not"
+           "want Clojure to evaluate `word` and `text` as symbols, we need to quote the expression"
+           "with `'`. Another option would be to call `(r/rsymbol \"word\")`."))
+
 (note
- (let [d (r.dplyr/tibble :lines (range 1 5) :text text)]
-   (t/unnest_tokens d 'word 'text)))
+ (let [data (d/tibble :lines (range 1 5) :text text)]
+   (-> data (t/unnest_tokens 'word 'text))))
+
 
 (note-md
  (long-str "## Tidying the Works of Jane Austen"           "First let's add a column indicating the chapter of each line in the text."))
+
+(note-md )
 
 (note
  (let [cumsum (r "cumsum")]
@@ -170,7 +193,9 @@
             (gg/scale_color_gradient :limits [0 0.001] :low "darkslategray4" :high "gray75")
             (gg/facet_wrap ''author :ncol 2)
             (gg/theme :legend.position "none")
-            (gg/labs :y "Jane Austen" :x nil))))))
+            (gg/labs :y "Jane Austen" :x nil)))
+    :width 700
+    :height 700)))
 
 (note-hiccup
  [:img {:src "static/frequencies.png"}])
