@@ -187,7 +187,9 @@
 
 (note-md
  (long-str "And now we can plot comparison frequencies between the corpuses of each author"
-           "as compared to Jane Austen."))
+           "as compared to Jane Austen. We'll export this chart as a file and then render it"
+           "in a separate note because the number of data points will produce a large SVG"
+           "and slow the page down considerably."))
 
 (note
  (def static-resource-target-path (notespace.v2.note/ns->out-dir *ns*)))
