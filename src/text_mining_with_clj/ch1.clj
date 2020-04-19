@@ -34,9 +34,6 @@
             '[janeaustenr :as j]
             '[stringr :as stringr]))
 
-(note
- (def static-resource-target-path "resources/static/"))
-
 (note-md
  (str "## 1.2: The `unnest_tokens` function"))
 
@@ -193,6 +190,9 @@
            "as compared to Jane Austen."))
 
 (note
+ (def static-resource-target-path (notespace.v2.note/ns->out-dir *ns*)))
+
+(note
  (let [abs (r "abs")]
    (plot->file
     (str static-resource-target-path "frequencies.png")
@@ -211,8 +211,4 @@
     :width 800
     :height 700)))
 
-(note-hiccup
- [:img {:src "static/frequencies.png"}])
-
-
-
+(note-hiccup [:img {:src "frequencies.png"}])
