@@ -176,9 +176,9 @@
  (let [sum (r "sum")]
    (def frequency
      (-> (d/bind_rows
-          (d/mutate tidy-bronte :author "Brönte Sisters")
-          (d/mutate tidy-hgwells :author "H.G. Wells")
-          (d/mutate tidy-books :author "Jane Austen"))
+         (d/mutate tidy-bronte :author "Brönte Sisters")
+         (d/mutate tidy-hgwells :author "H.G. Wells")
+         (d/mutate tidy-books :author "Jane Austen"))
          (d/mutate :word '(stringr/str_extract word "[a-z']+")) ;; clean words
          (d/count 'author 'word)
          (d/group_by 'author)
