@@ -4,22 +4,10 @@
             [clojisr.v1.require :refer [require-r]]
             [clojisr.v1.applications.plotting :refer [plot->svg plot->file]]
             [notespace.v2.note :refer [note note-md note-hiccup note-as-hiccup]]
-            [text-mining-with-clj.common :refer [long-str]])
+            [text-mining-with-clj.common :refer [long-str toc translation-note]])
   (:require [notespace.v2.live-reload]))
 
-(note-md
- (long-str "#Chapter 1: \"The tidy text format\", **Text Mining with R**"
-           "#### (Exercises translated into Clojure R-interop from the original: [https://www.tidytextmining.com/tidytext.html](https://www.tidytextmining.com/tidytext.html))"))
-
-
-(note-md
- (long-str "In what follows, you will find a translation of exaples found in the above chapter from"
-           "the book **Text Mining with R: A Tidy Approach** by Julia Silge and David Robinson."
-           "The goal of this document is to illustrate how do what they have demonstrated using"
-           "R-interop in Clojure. For a full examination of the ideas, please see their original text."
-           "To the degree that there is commentary in this text, it will largely relate to the"
-           "nature of the Clojure interop with R."
-           ))
+(note-md (str "## Chapter 1: \"The tidy text format\""))
 
 (note-md
  (str "## Some Setup"))
